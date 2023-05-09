@@ -1,0 +1,12 @@
+
+
+train: ../../datasets/pollen/all_pollen_types_dataset/yolo-datasets/small_pollen_dataset_splitted/train/images
+val:   ../../datasets/pollen/all_pollen_types_dataset/yolo-datasets/small_pollen_dataset_splitted/val/images
+test:  ../../datasets/pollen/all_pollen_types_dataset/yolo-datasets/small_pollen_dataset_splitted/test/images
+
+
+# number of classes
+nc: 11
+
+# class names
+names: ['chenopodiaceae', 'cupressaceae', 'olea', 'pinus', 'urticaceae', 'causarina', 'palmaceae', 'plantago', 'platanus', 'poaceae', 'rumex']
