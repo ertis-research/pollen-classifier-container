@@ -1,0 +1,25 @@
+
+<div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center" *ngIf="!_userService.token">
+
+    <mat-card class="box">
+      <mat-card-header>
+        <mat-card-title>Pollen Grain Counter App</mat-card-title>
+      </mat-card-header>
+      <br>
+      <form class="example-form">
+        <mat-card-content>
+          <mat-form-field class="example-full-width">
+            <input matInput placeholder="Username" [(ngModel)]="user.username" [ngModelOptions]="{standalone: true}">
+          </mat-form-field>
+  
+          <mat-form-field class="example-full-width">
+            <input matInput placeholder="Password" type="password" [(ngModel)]="user.password" [ngModelOptions]="{standalone: true}">
+          </mat-form-field>
+        </mat-card-content>
+        <button mat-stroked-button color="accent" class="btn-block" (click)="login()">Log in</button>
+      </form>
+    </mat-card>
+  
+  </div>
+
+<app-mainbar *ngIf="_userService.token!=null"></app-mainbar>

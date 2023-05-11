@@ -1,0 +1,42 @@
+<div class="container">
+
+  <p>
+    <mat-toolbar color="primary">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="polen">
+          <mat-icon>table_rows</mat-icon>
+          <span>Analysis Results</span>
+        </button>
+        <!-- <button mat-menu-item routerLink="stats">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Statistics</span>
+        </button>
+        <button mat-menu-item routerLink="ranges">
+          <mat-icon>date_range</mat-icon>
+          <span>Pollinic ranges</span>
+        </button>
+        <button mat-menu-item routerLink="types">
+          <mat-icon>control_point_duplicate</mat-icon>
+          <span>Pollen types</span>
+        </button> -->
+      </mat-menu>
+
+      <span>Automatic Polen Analysis Application</span>
+      <span class="toolbar-right-spacer"></span>
+
+      <button mat-icon-button type="button" (click)="addPolen()">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+      |
+      <button mat-icon-button type="button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+      </button>
+      
+    </mat-toolbar>
+
+  </p>
+  <router-outlet></router-outlet>
+</div>

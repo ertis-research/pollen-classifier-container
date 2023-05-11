@@ -1,0 +1,7 @@
+  .mat-form-field {
+    margin-top: 16px;
+  }
+
+::ng-deep .mat-vertical-stepper-header{
+    pointer-events: none !important;
+}

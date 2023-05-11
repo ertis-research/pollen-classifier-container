@@ -1,0 +1,66 @@
+<mat-dialog-content class="mat-typography">
+  <mat-vertical-stepper #stepper>
+    <mat-step [stepControl]="imageFormGroup" errorMessage="Uploading a valid file is required.">
+      <form [formGroup]="imageFormGroup">
+        <ng-template matStepLabel>Upload your file</ng-template>
+        <input type="file" accept=".zip" (change)="uploadVSIImage($event)" class="mt-2">
+        <br><br>
+        <div>
+          <button mat-button matStepperNext [disabled]="!fileUploaded">Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="nameFormGroup" errorMessage="Analysis Name is required.">
+      <form [formGroup]="nameFormGroup">
+        <ng-template matStepLabel>Fill out the analysis name</ng-template>
+        <mat-form-field>
+          <mat-label>Analysis Name</mat-label>
+          <input matInput placeholder="Polen Analysis, Malaga" formControlName="nameCtrl" required>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext [disabled]="nameFormGroup.value.nameCtrl == ''">Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="dateFormGroup" errorMessage="Sample date is required.">
+      <form [formGroup]="dateFormGroup">
+        <ng-template matStepLabel>Fill out the date of the sample</ng-template>
+        <mat-form-field>
+          <mat-label>Sample Date</mat-label>
+          <input matInput [matDatepicker]="dp1" readonly formControlName="dateCtrl" required>
+          <mat-datepicker-toggle matSuffix [for]="dp1"></mat-datepicker-toggle>
+          <mat-datepicker #dp1 disabled="false"></mat-datepicker>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext
+            [disabled]="dateFormGroup.value.dateCtrl == ''" *ngIf="imageSelectorReady">Next</button>
+          <button mat-button disabled="true">
+            <mat-progress-spinner color="accent" mode="indeterminate" *ngIf="!imageSelectorReady" diameter="20"></mat-progress-spinner>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="selectImageFormGroup">
+      <ng-template matStepLabel>Select the images to analyse</ng-template>
+      <mat-selection-list #selectedImages (selectionChange)="onSelection(selectedImages.selectedOptions.selected)">
+        <mat-list-option *ngFor="let item of imageFileList" [value]="item.identifier">
+          {{item.name}}
+        </mat-list-option>
+      </mat-selection-list>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext>Next</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Analyse</ng-template>
+      <p>Everything is ready.</p>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button [disabled]="clicked" (click)="addPolen()">Analyse</button>
+      </div>
+    </mat-step>
+  </mat-vertical-stepper>
+</mat-dialog-content>
