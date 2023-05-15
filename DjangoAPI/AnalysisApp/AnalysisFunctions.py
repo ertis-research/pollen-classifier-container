@@ -5,6 +5,8 @@ import bioformats as bf
 import os
 import zipfile
 
+from DjangoAPI.settings import EXTENSION
+
 
 def unzipFile(file, directory):
     with zipfile.ZipFile(file, 'r') as zip_ref:
@@ -38,11 +40,17 @@ def getImageInfo(input_image):
 
 def parseImages(imageList, image_directory, output_directory):
     for image in imageList:
-        stringScript  = 'bioformats\\bfconvert.bat '
+        stringScript  = os.path.join("bioformats", "bfconvert") + EXTENSION + ' '
         stringScript += '-overwrite '
         stringScript += '-series '+ str(image) + ' '
         stringScript += '\"'+image_directory+'\" '
-        stringScript += '\"'+output_directory+'\\%%n.ome.tiff\"'
+
+        if EXTENSION == 'nt':
+            stringScript += '\"' + os.path.join("output_directory", "%%n.ome.tiff") + '\"'
+        else:
+            stringScript += '\"' + os.path.join("output_directory", "%n.ome.tiff") + '\"'
+
+        # stringScript += '\"'+output_directory+'\\%%n.ome.tiff\"'
         os.system(stringScript)
         # print(stringScript)
 
@@ -58,7 +66,7 @@ def analyseImage(image_name, image_directory, percentage=0.7):
 
     print('Image analyzed: '+image_name)
 
-    im = cv2.imread(image_directory+'\\'+image_name)
+    im = cv2.imread(os.path.join(image_directory, image_name))
 
     # Splitting image in two different images for each day
     dims = im.shape
@@ -87,15 +95,5 @@ def analyseImage(image_name, image_directory, percentage=0.7):
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
         res.append(len(cnts))
-
-    return res
-
-def analyseImage_yolo(image_name, image_directory):
-
-    print('Image analyzed: '+image_name)
-
-    im = cv2.imread(image_directory+'\\'+image_name)
-
-    
 
     return res

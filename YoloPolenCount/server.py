@@ -131,7 +131,7 @@ def predict_pollen():
     
     extract_images(random_string)
 
-    crop_images(random_string, crop_size=2, file_type='jpg')
+    crop_images(random_string, crop_size=2, file_type='ome.tiff')
 
     result = predict_pollen_count(random_string)
 

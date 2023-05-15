@@ -3,7 +3,7 @@
 import requests
 import os
 
-url = "http://localhost:5000/predict"
+url = "http://localhost:8530/predict"
 
 # send images.zip in FILES
 files = {'images.zip': open(os.path.join(os.getcwd(), 'images.zip'), 'rb')}
