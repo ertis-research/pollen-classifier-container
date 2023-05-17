@@ -25,7 +25,7 @@ local_rank: -1
 workers: 8
 project: runs/train
 entity: null
-name: all-pollen-types_yolov7-w6
+name: ok-data-all-pollen-types_yolov7-w6
 exist_ok: false
 quad: false
 linear_lr: false
@@ -37,5 +37,5 @@ artifact_alias: latest
 v5_metric: false
 world_size: 1
 global_rank: -1
-save_dir: runs/train/all-pollen-types_yolov7-w6
+save_dir: runs/train/ok-data-all-pollen-types_yolov7-w62
 total_batch_size: 16

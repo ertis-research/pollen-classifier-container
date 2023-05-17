@@ -40,15 +40,15 @@ def getImageInfo(input_image):
 
 def parseImages(imageList, image_directory, output_directory):
     for image in imageList:
-        stringScript  = os.path.join("bioformats", "bfconvert") + EXTENSION + ' '
+        stringScript  = os.path.join("bioformats", "bfconvert.") + EXTENSION + ' '
         stringScript += '-overwrite '
         stringScript += '-series '+ str(image) + ' '
         stringScript += '\"'+image_directory+'\" '
 
         if EXTENSION == 'nt':
-            stringScript += '\"' + os.path.join("output_directory", "%%n.ome.tiff") + '\"'
+            stringScript += '\"' + os.path.join(output_directory, "%%n.ome.tiff") + '\"'
         else:
-            stringScript += '\"' + os.path.join("output_directory", "%n.ome.tiff") + '\"'
+            stringScript += '\"' + os.path.join(output_directory, "%n.ome.tiff") + '\"'
 
         # stringScript += '\"'+output_directory+'\\%%n.ome.tiff\"'
         os.system(stringScript)

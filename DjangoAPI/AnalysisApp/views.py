@@ -10,7 +10,7 @@ from AnalysisApp.serializers import PolenSerializer
 
 from django.core.files.storage import default_storage
 
-from DjangoAPI.settings import SECRET_KEY
+from DjangoAPI.settings import SECRET_KEY, YOLO_EXECUTOR_URL
 
 import AnalysisApp.AnalysisFunctions as af
 from pathlib import Path
@@ -82,7 +82,10 @@ def uploadVSI(request):
     file_name = default_storage.save(file.name, file)
     file_path = default_storage.path(file_name)
 
-    unzip_path = os.path.join(images, Path(file_name).stem)    
+    unzip_path = os.path.join("images", Path(file_name).stem)    
+
+    if not os.path.exists("images"):
+        os.makedirs("images")
 
     af.unzipFile(file_path, unzip_path)   
 
@@ -165,8 +168,7 @@ def analyseSelectedImages(request):
 
     af.parseImages(reqStr['SelectedRowsIds'], os.path.join(reqStr['PhotoFilePath'], reqStr['PhotoFileName']), parsed_route)
     
-    totalBlobsDetected = [0,0]   
-    if (len(reqStr['SelectedRowsIds']) != 0):        
+    if (len(reqStr['SelectedRowsIds']) > 0):        
         imageList = af.listFiles(parsed_route, 'ome.tiff')
         zip_path = os.path.join(parsed_route, 'images.zip')
         zip_file = zipfile.ZipFile(zip_path, 'w')
@@ -175,18 +177,8 @@ def analyseSelectedImages(request):
 
         zip_file.close()
 
-        print(zip_path)
+        res = requests.post(f'{YOLO_EXECUTOR_URL}/predict', files={'images.zip': open(zip_path, 'rb')})
 
-        # send images.zip in FILES
-        # files = {'images.zip': open(os.path.join(os.getcwd(), 'images.zip'), 'rb')}
-
-
-        res = requests.post('http://localhost:8530/predict', files={'images.zip': open(zip_path, 'rb')})
-
-
-
-
-    
     new_pollen = OrderedDict()
     new_pollen['AnalysisId'] = reqStr['AnalysisId']
     new_pollen['AnalysisName'] = reqStr['AnalysisName']

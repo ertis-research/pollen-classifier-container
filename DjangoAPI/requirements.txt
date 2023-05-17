@@ -22,3 +22,4 @@ tifffile==2021.4.8
 tqdm==4.60.0
 urllib3==1.26.4
 gunicorn==20.0.4
+requests==2.28.1

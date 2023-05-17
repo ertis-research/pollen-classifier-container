@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: pollen-backend
+  name: pollen-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pod-pollen-backend
+  template:
+    metadata:
+      labels:
+        name: pod-pollen-backend
+      name: pollen-backend
+    spec:
+      containers:
+    # - image: ertis/pollen-backend
+      - image: 192.168.218.2:30501/pollen-backend
+        name: backend
+        ports:
+        - containerPort: 8540
+        imagePullPolicy: Always
+        env:
+        - name: FRONTEND_URL
+          value: http://localhost:4200
+        - name: BACKEND_URL
+          value: http://backend:8540
+        - name: YOLO_EXECUTOR_URL
+          value: http://pollen-yolo-executor:8530
+        - name: ALLOWED_HOSTS
+          value: 127.0.0.1,localhost,backend
+        - name: ADMIN_USERNAME
+          value: admin
+        - name: ADMIN_EMAIL
+          value: test@admin.com
+        - name: ADMIN_PASSWORD
+          value: admin
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pollen-backend
+spec:
+  selector:
+    name: pod-pollen-backend
+  type: LoadBalancer
+  ports:
+  - protocol: "TCP"
+    port: 8540
+    targetPort: 8540
+

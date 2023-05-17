@@ -28,7 +28,10 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 RUN export JAVA_HOME
 # End Java
 
-RUN pip3 install numpy
+RUN pip3 install numpy==1.20.2
+
+# copy project
+COPY ./requirements.txt /usr/src/app/requirements.txt
 
 RUN pip install -r requirements.txt
 
@@ -40,4 +43,6 @@ COPY . /usr/src/app/
 EXPOSE 8000
 
 RUN chmod +x ./start.sh
+RUN chmod -R +x bioformats 
+
 CMD ["./start.sh"]

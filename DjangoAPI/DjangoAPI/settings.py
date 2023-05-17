@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure--g6rmo--mi+-h)@wp%&lttc*(bvgbh33_(1l2aq_+dztd19654
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [] if os.environ.get('ALLOWED_HOSTS') is None else os.environ.get('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -63,11 +63,7 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
 }
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4200',
-    'http://127.0.0.1:4200'
-    # URL base de donde se hostee
-]
+CORS_ORIGIN_WHITELIST = ['http://localhost:4200','http://127.0.0.1:4200'] if os.environ.get('FRONTEND_URL') is None else os.environ.get('FRONTEND_URL').split(',')
 
 
 MIDDLEWARE = [
@@ -157,3 +153,6 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EXTENSION = "sh" if os.name != 'nt' else "bat"
+
+BACKEND_URL = "http://localhost:8540" if os.environ.get("BACKEND_URL") is None else os.environ.get("BACKEND_URL")
+YOLO_EXECUTOR_URL = "http://localhost:8530" if os.environ.get("YOLO_EXECUTOR_URL") is None else os.environ.get("YOLO_EXECUTOR_URL")
