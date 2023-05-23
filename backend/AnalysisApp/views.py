@@ -39,6 +39,7 @@ async def getUserDetails_fromJWT(request):
     email = jwt_token_decoded['email']
     
     try:
+        # need to fix this
         await User.objects.aget(id=UserId, username = username, email = email)
         # User.objects.get(id=UserId, username = username, email = email)
     except:
