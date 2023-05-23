@@ -28,7 +28,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 RUN export JAVA_HOME
 # End Java
 
-RUN pip3 install numpy==1.20.2
+RUN pip3 install numpy==1.24.3
 
 # copy project
 COPY ./requirements.txt /usr/src/app/requirements.txt
@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install libgl1-mesa-glx -y
 # copy project
 COPY . /usr/src/app/
 
-EXPOSE 8000
+EXPOSE 8540
 
 RUN chmod +x ./start.sh
 RUN chmod -R +x bioformats 

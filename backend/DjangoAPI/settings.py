@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'AnalysisApp.apps.AnalysisappConfig',
     'rest_framework',
+    'adrf',
+    'rest_framework_simplejwt'
 ]
 
 REST_FRAMEWORK = {
@@ -52,16 +54,23 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
 
-JWT_AUTH = {
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
+SIMPLE_JWT = {
+    "TOKEN_OBTAIN_SERIALIZER": "AnalysisApp.serializers.PollenTokenObtainPairSerializer",
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=1),
+    "SIGNING_KEY": SECRET_KEY,
 }
+
+# JWT_AUTH = {
+#     'JWT_ALLOW_REFRESH': True,
+#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
+# }
 
 CORS_ORIGIN_WHITELIST = ['http://localhost:4200','http://127.0.0.1:4200'] if os.environ.get('FRONTEND_URL') is None else os.environ.get('FRONTEND_URL').split(',')
 

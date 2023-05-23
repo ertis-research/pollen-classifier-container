@@ -1,9 +1,11 @@
-from cv2 import cv2
+import cv2
 import numpy as np
 import javabridge
 import bioformats as bf
 import os
 import zipfile
+import asyncio
+import subprocess
 
 from DjangoAPI.settings import EXTENSION
 
@@ -38,7 +40,8 @@ def getImageInfo(input_image):
     return niceImages
 
 
-def parseImages(imageList, image_directory, output_directory):
+async def parseImages(imageList, image_directory, output_directory):
+    
     for image in imageList:
         stringScript  = os.path.join("bioformats", "bfconvert.") + EXTENSION + ' '
         stringScript += '-overwrite '
@@ -51,7 +54,18 @@ def parseImages(imageList, image_directory, output_directory):
             stringScript += '\"' + os.path.join(output_directory, "%n.ome.tiff") + '\"'
 
         # stringScript += '\"'+output_directory+'\\%%n.ome.tiff\"'
-        os.system(stringScript)
+        
+        # await os.system(stringScript)
+        # await sp.create_subprocess_shell(stringScript,stdout=sp.STDOUT,stderr=sp.STDOUT)
+        process = await asyncio.create_subprocess_shell(
+            stringScript,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        
+        stdout, stderr = await process.communicate()
+        return stdout, stderr
+
         # print(stringScript)
 
 def listFiles(directory, extension):

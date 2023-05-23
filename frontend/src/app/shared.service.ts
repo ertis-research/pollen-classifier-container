@@ -16,7 +16,7 @@ readonly PhotoUrl = "http://127.0.0.1:8540/media/"
     getHttpHeaders() {
       return new HttpHeaders({
           'Content-Type': 'application/json',
-          'Authorization': 'JWT ' + this._userService.token
+          'Authorization': 'Bearer '+ this._userService.token//'JWT ' + this._userService.token
         });
     }
 
@@ -32,11 +32,11 @@ readonly PhotoUrl = "http://127.0.0.1:8540/media/"
 
     UploadVSIPhoto(val:any){
       return this.http.post(this.APIUrl+'uploadVSI/', val,
-      {headers: {'Authorization': 'JWT ' + this._userService.token}})
+      {headers: {'Authorization': 'Bearer ' + this._userService.token}})
     }
 
     analyseSelectedImages(val:any){
-      return this.http.post(this.APIUrl+'analyse/',val, {headers: this.getHttpHeaders()})
+      return this.http.post(this.APIUrl+'analyse/', val, {headers: this.getHttpHeaders()})
     }
 
     //----------------------------------------------------

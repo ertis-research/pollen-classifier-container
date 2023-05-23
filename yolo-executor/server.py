@@ -147,3 +147,7 @@ def predict_pollen():
     response.headers['pollen_count_report'] = json.dumps(report)
 
     return response
+
+@server.route('/health', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
+def health():
+    return '', 200

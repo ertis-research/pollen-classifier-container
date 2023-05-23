@@ -78,7 +78,7 @@ readonly APIUrl = "http://127.0.0.1:8540/";
   public login(user:any) {
     this.http.post(this.APIUrl+'api-token-auth/', JSON.stringify(user), this.httpOptions).subscribe(
       data => {
-        this.updateData(data['token']);
+        this.updateData(data['access']);
       },
       err => {
         this.errors = err['error'];
@@ -93,9 +93,9 @@ readonly APIUrl = "http://127.0.0.1:8540/";
  
   // Refreshes the JWT token, to extend the time the user is logged in
   public refreshToken() {
-    this.http.post(this.APIUrl+'api-token-refresh/', JSON.stringify({token: this.token}), this.httpOptions).subscribe(
+    this.http.post(this.APIUrl+'api-token-refresh/', JSON.stringify({token: 'Bearer '+this.token}), this.httpOptions).subscribe(
       data => {
-        this.updateData(data['token']);        
+        this.updateData(data['access']);
       },
       err => {
         this.errors = err['error'];
