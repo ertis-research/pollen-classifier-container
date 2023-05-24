@@ -127,6 +127,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+env-yolo-executor*
+.env-yolo-executor/
 .env
 .venv
 docker-env/

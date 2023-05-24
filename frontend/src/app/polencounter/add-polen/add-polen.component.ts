@@ -105,7 +105,7 @@ export class AddPolenComponent implements OnInit {
     this.dialogRef.close();
 
     this.service.analyseSelectedImages(val).subscribe(res => {
-      if (res.toString() == "Analysis Okay") {
+      if (res.toString() == "Analysis request accepted") {
         window.location.reload();
       } else {
         this._snackBar.dismiss();

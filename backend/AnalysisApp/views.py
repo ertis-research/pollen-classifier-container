@@ -18,8 +18,9 @@ from pathlib import Path
 
 import numpy as np
 import zipfile
-import httpx as requests
+import httpx
 import os
+import asyncio
 
 from collections import OrderedDict
 
@@ -39,7 +40,6 @@ async def getUserDetails_fromJWT(request):
     email = jwt_token_decoded['email']
     
     try:
-        # need to fix this
         await User.objects.aget(id=UserId, username = username, email = email)
         # User.objects.get(id=UserId, username = username, email = email)
     except:
@@ -61,7 +61,10 @@ async def polenApi(request, id=0):
         return JsonResponse([], safe=False)
 
     if request.method=='GET':  
-        polen = await Polen.objects.filter(UserId=user)
+        # polen = Polen.objects.filter(UserId=user)
+
+        polen = await sync_to_async(list)(Polen.objects.filter(UserId=user))
+        
         polen_serializer = PolenSerializer(polen, many=True)
         return JsonResponse(polen_serializer.data, safe=False)
 
@@ -115,6 +118,36 @@ async def uploadVSI(request):
     return JsonResponse(responseList, safe=False)
 
 
+async def saveParsedImages(selected_row_ids, reqStr, parsed_route):
+    await af.parseImages(selected_row_ids, os.path.join(reqStr['PhotoFilePath'], reqStr['PhotoFileName']), parsed_route)
+    
+    if (len(selected_row_ids) > 0):        
+        imageList = af.listFiles(parsed_route, 'ome.tiff')
+        zip_path = os.path.join(parsed_route, 'images.zip')
+        zip_file = zipfile.ZipFile(zip_path, 'w')
+        for image in imageList:
+            zip_file.write(os.path.join(parsed_route, image), image)
+
+        zip_file.close()
+
+        res = await httpx.post(f'{YOLO_EXECUTOR_URL}/predict', files={'images.zip': open(zip_path, 'rb')})
+
+    new_pollen = OrderedDict()
+    new_pollen['AnalysisId'] = reqStr['AnalysisId']
+    new_pollen['AnalysisName'] = reqStr['AnalysisName']
+    new_pollen['SampleDate'] = reqStr['SampleDate']
+    new_pollen['AnalysisDate'] = reqStr['AnalysisDate']
+    new_pollen['PhotoFileName'] = reqStr['PhotoFileName']
+    new_pollen['PhotoFilePath'] = reqStr['PhotoFilePath']
+    new_pollen['UserId'] = reqStr['UserId']
+    new_pollen['AnalysisResult']  = res.headers['AnalysisResult']
+
+    polen_serializer = PolenSerializer(data=new_pollen)   
+    
+    if polen_serializer.is_valid():
+        polen_serializer.save()
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 async def analyseSelectedImages(request):
@@ -132,31 +165,9 @@ async def analyseSelectedImages(request):
     
     parsed_route = os.path.join(reqStr['PhotoFilePath'], "parsed")    
 
-    await af.parseImages(reqStr['SelectedRowsIds'], os.path.join(reqStr['PhotoFilePath'], reqStr['PhotoFileName']), parsed_route)
+    asyncio.get_event_loop().create_task(saveParsedImages(reqStr['SelectedRowsIds'], reqStr, parsed_route))
     
-    if (len(reqStr['SelectedRowsIds']) > 0):        
-        imageList = af.listFiles(parsed_route, 'ome.tiff')
-        zip_path = os.path.join(parsed_route, 'images.zip')
-        zip_file = zipfile.ZipFile(zip_path, 'w')
-        for image in imageList:
-            zip_file.write(os.path.join(parsed_route, image), image)
-
-        zip_file.close()
-
-        res = await requests.post(f'{YOLO_EXECUTOR_URL}/predict', files={'images.zip': open(zip_path, 'rb')})
-
-    new_pollen = OrderedDict()
-    new_pollen['AnalysisId'] = reqStr['AnalysisId']
-    new_pollen['AnalysisName'] = reqStr['AnalysisName']
-    new_pollen['SampleDate'] = reqStr['SampleDate']
-    new_pollen['AnalysisDate'] = reqStr['AnalysisDate']
-    new_pollen['PhotoFileName'] = reqStr['PhotoFileName']
-    new_pollen['PhotoFilePath'] = reqStr['PhotoFilePath']
-    new_pollen['UserId'] = reqStr['UserId']
-    new_pollen['AnalysisResult']  = res.headers['AnalysisResult']
-
-    polen_serializer = PolenSerializer(data=new_pollen)
-    if polen_serializer.is_valid():
-        polen_serializer.save()
-        return JsonResponse("Analysis Okay", safe=False)
-    return JsonResponse("Analysis Failed - Error", safe=False)
+    
+    # .run_until_complete(saveParsedImages(reqStr['SelectedRowsIds'], reqStr, parsed_route))
+    
+    return JsonResponse("Analysis request accepted", safe=False)
