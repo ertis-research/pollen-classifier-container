@@ -1,4 +1,9 @@
 import os
+
+from platform import architecture
+pr_bits = architecture()[0][:2]
+os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, int(pr_bits)-1).__str__()
+
 import zipfile
 import random
 import string
@@ -10,9 +15,10 @@ import json
 import torch
 import detect
 
-from flask import Flask, make_response, send_file, request
+from fastapi import FastAPI, File, UploadFile, Response
+from fastapi.responses import FileResponse
 
-server = Flask(__name__)
+server = FastAPI()
 
 def crop_images(random_string, crop_size=25, file_type='tif'):
     files = []
@@ -46,7 +52,7 @@ def extract_images(random_string):
     os.remove(os.path.join(os.getcwd(), 'images', random_string + '.zip'))
 
 
-def predict_pollen_count(random_string):
+async def predict_pollen_count(random_string):
     files = []
     for r, d, f in os.walk(os.path.join(os.getcwd(), 'images', random_string, 'cropped_images')):
         for file in f:
@@ -59,7 +65,7 @@ def predict_pollen_count(random_string):
         'img_size': 640,
         'conf_thres': 0.4,
         'iou_thres': 0.45,
-        'device': torch.cuda.device_count()-1 if torch.cuda.is_available() else "cpu",
+        'device': "cpu", # str(torch.cuda.device_count()-1) if torch.cuda.is_available() else "cpu",
         'view_img': False,
         'save_txt': True,
         'save_conf': False,
@@ -74,7 +80,8 @@ def predict_pollen_count(random_string):
         'no_trace': False
     }
 
-    detect.detect(arguments)
+    # sp.blabla (pythnd detect.py *args... ....)
+    # detect.detect(arguments
 
 
 def generate_pollen_report(random_string, model_version='v1'):
@@ -117,23 +124,28 @@ def export_predictions(random_string):
 
 
 
-@server.route('/predict', methods=['POST'])
-def predict_pollen():
+@server.post('/predict')
+async def predict_pollen(file: UploadFile):
     random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+
+    print('Random String: '+file.filename)
 
     if not os.path.exists(os.path.join(os.getcwd(), 'images', random_string)):
         os.makedirs(os.path.join(os.getcwd(), 'images', random_string))
         os.makedirs(os.path.join(os.getcwd(), 'images', random_string, 'received_images'))
         os.makedirs(os.path.join(os.getcwd(), 'images', random_string, 'cropped_images'))
 
-    zip_file = request.files['images.zip']
-    zip_file.save(os.path.join(os.getcwd(), 'images', f"{random_string}.zip"))
-    
+    # get the zip file from the request FastAPI
+    zip_file = file.file
+    with open(os.path.join(os.getcwd(), 'images', f"{random_string}.zip"), 'wb') as f:
+        f.write(zip_file.read())
+
     extract_images(random_string)
 
-    crop_images(random_string, crop_size=2, file_type='ome.tiff')
+    crop_images(random_string, crop_size=2, file_type='jpg')
+    # crop_images(random_string, crop_size=25, file_type='ome.tiff')
 
-    result = predict_pollen_count(random_string)
+    result = await predict_pollen_count(random_string)
 
     # Count different pollen types and generate a report
     report = generate_pollen_report(random_string) 
@@ -143,11 +155,15 @@ def predict_pollen():
 
     
     filename = os.path.join(os.getcwd(), 'images', random_string, 'predicted_images.zip')
-    response = make_response(send_file(filename, as_attachment=True))    
+    
+    # response = make_response(send_file(filename, as_attachment=True))    
+    # response.headers['pollen_count_report'] = json.dumps(report)
+
+    response = FileResponse(filename, media_type='application/zip', filename='images.zip')
     response.headers['pollen_count_report'] = json.dumps(report)
 
     return response
 
-@server.route('/health', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
+@server.api_route('/health', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'])
 def health():
     return '', 200
