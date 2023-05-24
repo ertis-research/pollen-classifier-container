@@ -6,7 +6,7 @@ import os
 url = "http://localhost:8530/predict"
 
 # send images.zip in FILES
-files = {'images.zip': open(os.path.join(os.getcwd(), 'images.zip'), 'rb')}
+files = {'file': open(os.path.join(os.getcwd(), 'images.zip'), 'rb')}
 
 # send the post request
 r = requests.post(url, files=files)
