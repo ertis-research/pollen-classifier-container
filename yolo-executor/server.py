@@ -12,8 +12,10 @@ import pathlib
 import yaml
 import json
 
+# import detect_args as detect
 import torch
-import detect
+import asyncio
+import subprocess
 
 from fastapi import FastAPI, File, UploadFile, Response
 from fastapi.responses import FileResponse
@@ -62,26 +64,36 @@ async def predict_pollen_count(random_string):
     arguments = {
         'weights': os.path.join('trained_models', 'v1', 'weights', 'best.pt'),
         'source': os.path.join('images', random_string, 'cropped_images'),
-        'img_size': 640,
-        'conf_thres': 0.4,
-        'iou_thres': 0.45,
+        'img-size': 640,
+        'conf-thres': 0.4,
+        'iou-thres': 0.45,
         'device': "cpu", # str(torch.cuda.device_count()-1) if torch.cuda.is_available() else "cpu",
-        'view_img': False,
-        'save_txt': True,
-        'save_conf': False,
-        'nosave': False,
-        'classes': None,
-        'agnostic_nms': False,
-        'augment': False,
-        'update': False,
+        'save-txt': True,
         'project': os.path.join('images', random_string),
-        'name': 'predicted_images',
-        'exist_ok': False,
-        'no_trace': False
+        'name': 'predicted_images'
     }
 
+    # detect.detect(arguments)
+
+    stringScript = 'python detect.py' 
+    for key, value in arguments.items():
+        if value is not None:
+            if value is True:
+                stringScript += ' --' + key
+            else:
+                stringScript += ' --' + key + ' ' + str(value)
+
+    process = await asyncio.create_subprocess_shell(
+        stringScript,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+        
+    stdout, stderr = await process.communicate()
+    return stdout, stderr
+
     # sp.blabla (pythnd detect.py *args... ....)
-    # detect.detect(arguments
+    # 
 
 
 def generate_pollen_report(random_string, model_version='v1'):
@@ -128,8 +140,6 @@ def export_predictions(random_string):
 async def predict_pollen(file: UploadFile):
     random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
 
-    print('Random String: '+file.filename)
-
     if not os.path.exists(os.path.join(os.getcwd(), 'images', random_string)):
         os.makedirs(os.path.join(os.getcwd(), 'images', random_string))
         os.makedirs(os.path.join(os.getcwd(), 'images', random_string, 'received_images'))
@@ -142,8 +152,8 @@ async def predict_pollen(file: UploadFile):
 
     extract_images(random_string)
 
-    crop_images(random_string, crop_size=2, file_type='jpg')
-    # crop_images(random_string, crop_size=25, file_type='ome.tiff')
+    # crop_images(random_string, crop_size=2, file_type='jpg')
+    crop_images(random_string, crop_size=25, file_type='ome.tiff')
 
     result = await predict_pollen_count(random_string)
 
