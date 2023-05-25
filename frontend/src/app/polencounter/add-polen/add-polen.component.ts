@@ -99,15 +99,14 @@ export class AddPolenComponent implements OnInit {
     this._snackBar.openFromComponent(LoadingAnalysisComponent, {
       horizontalPosition: 'center',
       verticalPosition: 'bottom',
+      duration: 10 * 1000,
     });
 
 
     this.dialogRef.close();
 
     this.service.analyseSelectedImages(val).subscribe(res => {
-      if (res.toString() == "Analysis request accepted") {
-        window.location.reload();
-      } else {
+      if (res.toString() != "Analysis request accepted") {
         this._snackBar.dismiss();
         this._snackBar.open('Analysis Failed. Try to analyse later.', 'Close', {
           horizontalPosition: 'end',

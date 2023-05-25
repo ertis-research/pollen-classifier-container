@@ -66,6 +66,22 @@ export class ShowPolenComponent implements OnInit {
       });
     }
   }
+
+  parseResultsToJSON(results: string) {
+    let parsedResults = JSON.parse(results);
+
+    // generate a html list with the results. "Key: Value"
+    let htmlList = '<ul>';
+    for (let key in parsedResults) {
+      htmlList += '<li>' + key + ': ' + parsedResults[key] + '</li>';
+    }
+    htmlList += '</ul>';
+
+    return htmlList;
+
+  }
+
+
 }
 
 @Component({

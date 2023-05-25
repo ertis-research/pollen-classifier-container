@@ -37,7 +37,7 @@
     <!-- AnalysisResult Column -->
     <ng-container matColumnDef="AnalysisResult">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Analysis Result </th>
-      <td mat-cell *matCellDef="let element"> {{element.AnalysisResult}} </td>
+      <td mat-cell *matCellDef="let element"> <div [innerHTML]="parseResultsToJSON(element.AnalysisResult)"></div></td>
     </ng-container>
 
     <!-- AnalysisResult Column -->
