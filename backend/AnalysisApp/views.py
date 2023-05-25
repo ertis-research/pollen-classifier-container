@@ -1,36 +1,32 @@
-from rest_framework.decorators import permission_classes #, api_view
-from adrf.decorators import api_view # as async_api_view
-from rest_framework.permissions import IsAuthenticated
+
+from django.contrib.auth.models import User
+from django.http.response import JsonResponse
+from django.core.files.storage import default_storage
 
 from rest_framework.parsers import JSONParser
-from django.http.response import JsonResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 
-from AnalysisApp.models import Polen
-from django.contrib.auth.models import User
-from AnalysisApp.serializers import PolenSerializer
+import jwt
+import httpx
+import zipfile
+from pathlib import Path
 
-from django.core.files.storage import default_storage
+import asyncio
+from adrf.decorators import api_view 
+from asgiref.sync import sync_to_async
 
 from DjangoAPI.settings import SECRET_KEY, YOLO_EXECUTOR_URL
 
+from AnalysisApp.models import Polen
+from AnalysisApp.serializers import PolenSerializer
+
 import AnalysisApp.AnalysisFunctions as af
-from pathlib import Path
 
-import numpy as np
-import zipfile
-import httpx
 import os
-import asyncio
+import numpy as np
+from datetime import datetime
 
-from collections import OrderedDict
-
-from asgiref.sync import sync_to_async
-
-import jwt
-
-# Create your views here.
-
-# @sync_to_async
 async def getUserDetails_fromJWT(request):
     jwt_token = request.META['HTTP_AUTHORIZATION'][len("Bearer "):]
     jwt_token_decoded = jwt.decode(str(jwt_token), SECRET_KEY, algorithms="HS256")
@@ -41,7 +37,6 @@ async def getUserDetails_fromJWT(request):
     
     try:
         await User.objects.aget(id=UserId, username = username, email = email)
-        # User.objects.get(id=UserId, username = username, email = email)
     except:
         return -1, 401 # Unauthorized
 
@@ -61,8 +56,6 @@ async def polenApi(request, id=0):
         return JsonResponse([], safe=False)
 
     if request.method=='GET':  
-        # polen = Polen.objects.filter(UserId=user)
-
         polen = await sync_to_async(list)(Polen.objects.filter(UserId=user))
         
         polen_serializer = PolenSerializer(polen, many=True)
@@ -88,7 +81,6 @@ async def uploadVSI(request):
     if code == 401:
         return JsonResponse([], safe=False)
 
-    # save the file in the server (async function)
     file=request.FILES['uploadedFile']    
     file_name = default_storage.save(file.name, file)
     file_path = default_storage.path(file_name)
@@ -105,15 +97,19 @@ async def uploadVSI(request):
         return JsonResponse('Error uploading file. The VSI file cannot be found or there is more than one.', safe=False)
 
     responseList = []
-    paths = OrderedDict()
-    paths['unzip']    = unzip_path
-    paths['filename'] = vsiFiles[0]
+
+    paths = {
+        'unzip': unzip_path,
+        'filename': vsiFiles[0]
+    }
+
     responseList.append(paths)
 
     for image in af.getImageInfo(os.path.join(unzip_path, vsiFiles[0])):
-        images = OrderedDict()
-        images['identifier'] = image[0]
-        images['name'] = image[1]
+        images = {
+            'identifier': image[0],
+            'name': image[1]
+        }
         responseList.append(images)    
     return JsonResponse(responseList, safe=False)
 
@@ -130,22 +126,25 @@ async def saveParsedImages(selected_row_ids, reqStr, parsed_route):
 
         zip_file.close()
 
-        res = await httpx.post(f'{YOLO_EXECUTOR_URL}/predict', files={'images.zip': open(zip_path, 'rb')})
+        async with httpx.AsyncClient() as client:
+            res = await client.post(f'{YOLO_EXECUTOR_URL}/predict', files={'file': open(zip_path, 'rb')}, timeout=None)
+        
+        polen_user = await User.objects.aget(id=reqStr['UserId'])
 
-    new_pollen = OrderedDict()
-    new_pollen['AnalysisId'] = reqStr['AnalysisId']
-    new_pollen['AnalysisName'] = reqStr['AnalysisName']
-    new_pollen['SampleDate'] = reqStr['SampleDate']
-    new_pollen['AnalysisDate'] = reqStr['AnalysisDate']
-    new_pollen['PhotoFileName'] = reqStr['PhotoFileName']
-    new_pollen['PhotoFilePath'] = reqStr['PhotoFilePath']
-    new_pollen['UserId'] = reqStr['UserId']
-    new_pollen['AnalysisResult']  = res.headers['AnalysisResult']
+        new_pollen = {
+            # 'AnalysisId': reqStr['UserId'],
+            'UserId': polen_user,
+            'AnalysisName': reqStr['AnalysisName'],
+            'AnalysisDate': datetime.strptime(reqStr['AnalysisDate'], '%Y-%m-%d').date(),
+            'SampleDate': datetime.strptime(reqStr['SampleDate'], '%Y-%m-%d').date(),
+            'PhotoFileName': reqStr['PhotoFileName'],
+            'PhotoFilePath': reqStr['PhotoFilePath'],
+            'AnalysisResult': res.headers['pollen_count_report']
+        }
 
-    polen_serializer = PolenSerializer(data=new_pollen)   
-    
-    if polen_serializer.is_valid():
-        polen_serializer.save()
+        created_polen = await Polen.objects.acreate(**new_pollen)
+
+
 
 
 @api_view(['POST'])
@@ -166,8 +165,5 @@ async def analyseSelectedImages(request):
     parsed_route = os.path.join(reqStr['PhotoFilePath'], "parsed")    
 
     asyncio.get_event_loop().create_task(saveParsedImages(reqStr['SelectedRowsIds'], reqStr, parsed_route))
-    
-    
-    # .run_until_complete(saveParsedImages(reqStr['SelectedRowsIds'], reqStr, parsed_route))
     
     return JsonResponse("Analysis request accepted", safe=False)
