@@ -24,13 +24,11 @@ spec:
         imagePullPolicy: Always
         env:
         - name: FRONTEND_URL
-          value: http://localhost:4200
-        - name: BACKEND_URL
-          value: http://backend:8540
+          value: http://pollen-frontend:8520
         - name: YOLO_EXECUTOR_URL
           value: http://pollen-yolo-executor:8530
         - name: ALLOWED_HOSTS
-          value: 127.0.0.1,localhost,backend
+          value: "*"
         - name: ADMIN_USERNAME
           value: admin
         - name: ADMIN_EMAIL

@@ -67,13 +67,8 @@ SIMPLE_JWT = {
     "SIGNING_KEY": SECRET_KEY,
 }
 
-# JWT_AUTH = {
-#     'JWT_ALLOW_REFRESH': True,
-#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=1800),
-# }
-
-CORS_ORIGIN_WHITELIST = ['http://localhost:4200','http://127.0.0.1:4200'] if os.environ.get('FRONTEND_URL') is None else os.environ.get('FRONTEND_URL').split(',')
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -163,5 +158,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EXTENSION = "sh" if os.name != 'nt' else "bat"
 
-BACKEND_URL = "http://localhost:8540" if os.environ.get("BACKEND_URL") is None else os.environ.get("BACKEND_URL")
 YOLO_EXECUTOR_URL = "http://localhost:8530" if os.environ.get("YOLO_EXECUTOR_URL") is None else os.environ.get("YOLO_EXECUTOR_URL")
