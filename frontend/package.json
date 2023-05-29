@@ -25,7 +25,6 @@
     "@angular/platform-browser-dynamic": "~11.2.9",
     "@angular/router": "~11.2.9",
     "@swimlane/ngx-charts": "^17.0.1",
-    "angular-cli": "^1.0.0-beta.28.3",
     "moment": "^2.29.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",

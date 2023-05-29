@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
  
 @Injectable()
 export class UserService {
-readonly APIUrl = "http://127.0.0.1:8540/";
+readonly APIUrl = window["env"]["API_SERVER_URL"] + "/";
  
   private httpOptions: any; 
   // http options used for making API calls

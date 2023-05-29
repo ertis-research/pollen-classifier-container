@@ -8,8 +8,8 @@ import { UserService } from './user.service';
 })
 export class SharedService {
   
-readonly APIUrl = "http://127.0.0.1:8540/";
-readonly PhotoUrl = "http://127.0.0.1:8540/media/"
+readonly APIUrl = window["env"]["API_SERVER_URL"] + "/";
+readonly PhotoUrl = window["env"]["API_SERVER_URL"] + "/media/"
 
   constructor(private http:HttpClient, private _userService:UserService) { }
 
