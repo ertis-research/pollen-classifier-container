@@ -16,8 +16,7 @@ spec:
       name: pollen-backend
     spec:
       containers:
-    # - image: ertis/pollen-backend
-      - image: 192.168.218.2:30501/pollen-backend
+      - image: ertis/pollen-web-backend:v1.0
         name: backend
         ports:
         - containerPort: 8540

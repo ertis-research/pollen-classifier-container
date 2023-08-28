@@ -16,7 +16,7 @@ spec:
       name: pollen-yolo-executor
     spec:
       containers:
-      - image: 192.168.218.2:30501/pollen-yolo-executor
+      - image: ertis/pollen-web-yoloexecutor:v1.0
         name: pollen-yolo-executor
         ports:
         - containerPort: 8530

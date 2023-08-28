@@ -16,7 +16,7 @@ spec:
       name: pollen-frontend
     spec:
       containers:
-      - image: ertis.internal:30501/pollen-frontend
+      - image: ertis/pollen-web-frontend:v1.0
         name: pollen-frontend
         ports:
         - containerPort: 8520
