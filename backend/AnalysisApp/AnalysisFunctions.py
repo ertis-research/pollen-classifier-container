@@ -64,7 +64,7 @@ async def parseImages(imageList, image_directory, output_directory):
         )
         
         stdout, stderr = await process.communicate()
-        return stdout, stderr
+        # return stdout, stderr
 
         # print(stringScript)
 
