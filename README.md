@@ -1,6 +1,6 @@
-# PollenScope Web
+# PollenImage Analyzer
 
-This repository contains the code of PollenScope Web, a web application capable of analysing pollen samples in the format of the microscope from which the samples are taken, thus promoting automatic analysis. 
+This repository contains the code of PollenImage Analyzer, a web application capable of analysing pollen samples in the format of the microscope from which the samples are taken, thus promoting automatic analysis. 
 
 ## Table of Contents
 - [Deployment](#Deployment)
