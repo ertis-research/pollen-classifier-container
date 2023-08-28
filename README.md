@@ -1,13 +1,16 @@
-# Web Application to analyse Pollen Particles
+# PollenScope Web
 
-This repository contains the code of a web application capable of analysing pollen samples in the format of the microscope from which the samples are taken, thus promoting automatic analysis. 
+This repository contains the code of PollenScope Web, a web application capable of analysing pollen samples in the format of the microscope from which the samples are taken, thus promoting automatic analysis. 
 
 ## Table of Contents
+- [Deployment](#Deployment)
 - [Installation and development](#Installation-and-development)
     - [Requirements](#requirements) 
     - [Steps to build and the application](#Steps-to-build-and-the-application)
 - [License](#license)
 
+## Deployment
+In order to deploy the application, Kubernetes YAMLs are provided in order to make a simple deploy. Applying all those YAMLs in the same namespace should be enough to have the application running at port 8520.
 
 ## Installation and development
 
